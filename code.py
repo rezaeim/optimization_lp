@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Apr 26 23:15:41 2020
 
-@author: karth
-"""
 from ortools.linear_solver import pywraplp
 import pandas as pd
 
 # 1. Loading the input data
-sup_stock = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Supplier stock", index_col=0)
-raw_material_cost = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Raw material costs", index_col=0)
-raw_material_shipping = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Raw material shipping", index_col=0)
-production_req = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Product requirements", index_col=0)
-production_capacity = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Production capacity", index_col=0)
-customer_demand = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Customer demand", index_col=0)
-production_cost = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Production cost", index_col=0)
-shipping_costs = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name = "Shipping costs", index_col=0)
+sup_stock = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Supplier stock", index_col=0)
+raw_material_cost = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Raw material costs", index_col=0)
+raw_material_shipping = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Raw material shipping", index_col=0)
+production_req = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Product requirements", index_col=0)
+production_capacity = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Production capacity", index_col=0)
+customer_demand = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Customer demand", index_col=0)
+production_cost = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Production cost", index_col=0)
+shipping_costs = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Shipping costs", index_col=0)
 # Changing NaN values to 0 for easy computation
 customer_demand = customer_demand.fillna(0)
 production_req = production_req.fillna(0)
@@ -24,22 +20,21 @@ production_capacity = production_capacity.fillna(0)
 raw_material_cost = raw_material_cost.fillna(0)
 production_cost = production_cost.fillna(0)
 
-# Getting list of factories 
-
+# Getting list of factories
 factories = list(raw_material_shipping.columns )
-print("Factories:\n",factories)
+print("Factories:\n", factories)
 # Getting list of materials
 materials = list(raw_material_cost.columns)
-print("Materials: \n",materials)
+print("Materials: \n", materials)
 # Getting list of suppliers
 suppliers = list(raw_material_cost.index)
-print("Suppliers: \n",suppliers)
-#Getting list of products
+print("Suppliers: \n", suppliers)
+# Getting list of products
 products = list(production_req.index)
-print("Products: \n",products)
-#Getting list of customers
+print("Products: \n", products)
+# Getting list of customers
 customers = list(customer_demand.columns)
-print("Customers: \n",customers)
+print("Customers: \n", customers)
 
 # 2. Creating Decision Variables using OR Tools wrapper of the GLOP_LINEAR_PROGRAMMING solver.
 solver = pywraplp.Solver('LPWrapper', 
@@ -63,7 +58,6 @@ for factory in factories:
             delivery[(factory, customer, product)] = solver.NumVar(0, solver.infinity(), factory+"_"+customer+"_"+product)
 
 
-
 # C. Define and implement the constraints that ensure factories produce more 
 #    than they ship to the customers
 
@@ -74,33 +68,25 @@ for product in products:
         for customer in customers:             
             c.SetCoefficient(delivery[(factory, customer, product)], -1)
 
-## D. Define and implement the constraints that ensure that customer demand is met
 
+# D. Define and implement the constraints that ensure that customer demand is met
 for customer in customers: 
     for product in products:
         
         c = solver.Constraint(int(customer_demand.loc[product][customer]),int(customer_demand.loc[product][customer]))
         for factory in factories: 
             c.SetCoefficient(delivery[(factory,customer,product)], 1)
-#
-## E. Define and implement the constraints that ensure that suppliers have all ordered items in stock     
 
 
-
+# E. Define and implement the constraints that ensure that suppliers have all ordered items in stock
 for supplier in suppliers: 
     for material in materials: 
         c = solver.Constraint(0, int(sup_stock.loc[supplier][material]))
         for factory in factories: 
             c.SetCoefficient(orders[(factory, material, supplier)],1)
-            
-            
 
-          
 # F. Define and implement the constraints that ensure that factories order 
 #    enough material to be able to manufacture all items
-
-
-
 for factory in factories:
     for material in materials:
         c = solver.Constraint(0,solver.infinity())
@@ -108,20 +94,14 @@ for factory in factories:
             c.SetCoefficient(orders[(factory, material, supplier)],1)
             for product in products:
                 c.SetCoefficient(production_volume[(factory, product)], - production_req.loc[product][material])
-            
 
-
-### G.Define and implement the constraints that ensure that the manufacturing capacities are not exceeded
-##
-                
-                
-                
-for factory in factories: 
+# G.Define and implement the constraints that ensure that the manufacturing capacities are not exceeded
+for factory in factories:
     for product in products: 
         c = solver.Constraint(0, int(production_capacity.loc[product][factory]))  
         c.SetCoefficient(production_volume[(factory, product)],1)
 
-### H  Define and implement the objective function.
+# H  Define and implement the objective function.
 cost = solver.Objective()
 # Material Costs  + shipping costs 
 for factory in factories: 
@@ -129,8 +109,7 @@ for factory in factories:
         for material in materials:
             cost.SetCoefficient(orders[(factory, material, supplier)] , 
                                        raw_material_cost.loc[supplier][material] + raw_material_shipping.loc[supplier][factory])
-            
-#
+
 # production cost of each factory 
 for factory in factories: 
     for product in products: 
@@ -227,9 +206,9 @@ for customer in customers:
                         material_units += delivery[(factory, customer, product)].solution_value() * production_req.loc[product][material]
                         
                         print("\t  ",material,": ", material_units)  
-                        #raw material cost
+                        # raw material cost
                         material_cost = 0
-                        #raw material cost
+                        # raw material cost
                         rshipping_cost = 0 
                         material_count = 0
                         for supplier in suppliers:
