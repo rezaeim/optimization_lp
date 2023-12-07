@@ -4,14 +4,14 @@ from ortools.linear_solver import pywraplp
 import pandas as pd
 
 # 1. Loading the input data
-sup_stock = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Supplier stock", index_col=0)
-raw_material_cost = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Raw material costs", index_col=0)
-raw_material_shipping = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Raw material shipping", index_col=0)
-production_req = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Product requirements", index_col=0)
-production_capacity = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Production capacity", index_col=0)
-customer_demand = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Customer demand", index_col=0)
-production_cost = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Production cost", index_col=0)
-shipping_costs = pd.read_excel("Assignment_DA_2_a_data.xlsx", sheet_name="Shipping costs", index_col=0)
+sup_stock = pd.read_excel("Data.xlsx", sheet_name="Supplier stock", index_col=0)
+raw_material_cost = pd.read_excel("Data.xlsx", sheet_name="Raw material costs", index_col=0)
+raw_material_shipping = pd.read_excel("Data.xlsx", sheet_name="Raw material shipping", index_col=0)
+production_req = pd.read_excel("Data.xlsx", sheet_name="Product requirements", index_col=0)
+production_capacity = pd.read_excel("Data.xlsx", sheet_name="Production capacity", index_col=0)
+customer_demand = pd.read_excel("Data.xlsx", sheet_name="Customer demand", index_col=0)
+production_cost = pd.read_excel("Data.xlsx", sheet_name="Production cost", index_col=0)
+shipping_costs = pd.read_excel("Data.xlsx", sheet_name="Shipping costs", index_col=0)
 # Changing NaN values to 0 for easy computation
 customer_demand = customer_demand.fillna(0)
 production_req = production_req.fillna(0)
